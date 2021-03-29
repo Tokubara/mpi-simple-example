@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 
   /* Add up the integrals calculated by each process */
   // 如果用点对点阻塞
-#if M==1
+#if M == 1
   if (my_rank != 0) {
     MPI_Send(&local_int, 1, MPI_DOUBLE, 0, my_rank, MPI_COMM_WORLD);
   } else {
@@ -49,32 +49,31 @@ int main(int argc, char **argv) {
       total_int += local_int;
     }
   }
-#elif M==2
-		MPI_Request *requests= (MPI_Request*)malloc(sizeof(MPI_REQUEST_NULL)*2*(comm_sz-1));
+#elif M == 2
+  MPI_Request *requests =
+      (MPI_Request *)malloc(sizeof(MPI_REQUEST_NULL) * 2 * (comm_sz - 1));
   if (my_rank != 0) {
-    MPI_Isend(&local_int, 1, MPI_DOUBLE, 0, my_rank, MPI_COMM_WORLD, &requests[my_rank-1]);
+    MPI_Isend(&local_int, 1, MPI_DOUBLE, 0, my_rank, MPI_COMM_WORLD,
+              &requests[my_rank - 1]);
   } else {
-		double *all_int = (double*)malloc(sizeof(double)*comm_sz);
-		all_int[0]=local_int;
+    double *all_int = (double *)malloc(sizeof(double) * comm_sz);
+    all_int[0] = local_int;
     for (int i = 1; i < comm_sz; i++) {
       MPI_Irecv(&all_int[i], 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD,
-               &requests[i-1+comm_sz-1]);
+                &requests[i - 1 + comm_sz - 1]);
     }
-		MPI_Waitall(2*(comm_sz-1), requests, MPI_STATUSES_IGNORE);
-	  for (int i = 0; i < comm_sz; i++) {
-			total_int+=all_int[i];
-		}	
-		free(all_int);
+    MPI_Waitall(2 * (comm_sz - 1), requests, MPI_STATUSES_IGNORE);
+    for (int i = 0; i < comm_sz; i++) {
+      total_int += all_int[i];
+    }
+    free(all_int);
   }
 
-	free(requests);
 #endif
-
-
-
 
   /* Print the result */
   if (my_rank == 0) {
+    free(requests);
     printf("With n = %d trapezoids, our estimate\n", n);
     printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
   }

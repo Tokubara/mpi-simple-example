@@ -52,6 +52,9 @@ int main(int argc, char **argv) {
 #elif M == 2
   MPI_Request *requests =
       (MPI_Request *)malloc(sizeof(MPI_REQUEST_NULL) * 2 * (comm_sz - 1));
+	for (int i = 0; i < comm_sz; i++) {
+		requests[i]=MPI_REQUEST_NULL;
+	}
   if (my_rank != 0) {
     MPI_Isend(&local_int, 1, MPI_DOUBLE, 0, my_rank, MPI_COMM_WORLD,
               &requests[my_rank - 1]);

@@ -75,10 +75,13 @@ int main(int argc, char **argv) {
 #elif M == 3
   MPI_Reduce(&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 #elif M == 4
+	double* all_int;
   if (my_rank == 0) {
-    double *all_int = (double *)malloc(sizeof(double) * comm_sz);
-    MPI_Gather(&local_int, 1, MPI_DOUBLE, all_int, 1, MPI_DOUBLE, 0,
-               MPI_COMM_WORLD);
+    all_int = (double *)malloc(sizeof(double) * comm_sz);
+	}
+	MPI_Gather(&local_int, 1, MPI_DOUBLE, all_int, 1, MPI_DOUBLE, 0,
+						 MPI_COMM_WORLD);
+	if (my_rank == 0) {
     for (int i = 0; i < comm_sz; i++) {
       total_int += all_int[i];
     }

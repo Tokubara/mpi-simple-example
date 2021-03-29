@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
 #elif M == 2
   MPI_Request *requests =
       (MPI_Request *)malloc(sizeof(MPI_REQUEST_NULL) * 2 * (comm_sz - 1));
-	for (int i = 0; i < comm_sz; i++) {
-		requests[i]=MPI_REQUEST_NULL;
-	}
+  for (int i = 0; i < comm_sz; i++) {
+    requests[i] = MPI_REQUEST_NULL;
+  }
   if (my_rank != 0) {
     MPI_Isend(&local_int, 1, MPI_DOUBLE, 0, my_rank, MPI_COMM_WORLD,
               &requests[my_rank - 1]);
@@ -65,16 +65,25 @@ int main(int argc, char **argv) {
       MPI_Irecv(&all_int[i], 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD,
                 &requests[i - 1 + comm_sz - 1]);
     }
-    MPI_Waitall( (comm_sz - 1), requests+(comm_sz-1), MPI_STATUSES_IGNORE);
+    MPI_Waitall((comm_sz - 1), requests + (comm_sz - 1), MPI_STATUSES_IGNORE);
     for (int i = 0; i < comm_sz; i++) {
       total_int += all_int[i];
     }
     free(all_int);
     free(requests);
   }
-#elif M==3
-	MPI_Reduce (&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
+#elif M == 3
+  MPI_Reduce(&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+#elif M == 4
+  if (my_rank == 0) {
+    double *all_int = (double *)malloc(sizeof(double) * comm_sz);
+    MPI_Gather(&local_int, 1, MPI_DOUBLE, all_int, 1, MPI_DOUBLE, 0,
+               MPI_COMM_WORLD);
+    for (int i = 0; i < comm_sz; i++) {
+      total_int += all_int[i];
+    }
+    free(all_int);
+  }
 
 #endif
 

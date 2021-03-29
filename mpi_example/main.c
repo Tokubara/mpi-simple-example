@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
       MPI_Irecv(&all_int[i], 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD,
                 &requests[i - 1 + comm_sz - 1]);
     }
-    MPI_Waitall(2 * (comm_sz - 1), requests, MPI_STATUSES_IGNORE);
+    MPI_Waitall( (comm_sz - 1), requests+(comm_sz-1), MPI_STATUSES_IGNORE);
     for (int i = 0; i < comm_sz; i++) {
       total_int += all_int[i];
     }

@@ -70,13 +70,16 @@ int main(int argc, char **argv) {
       total_int += all_int[i];
     }
     free(all_int);
+    free(requests);
   }
+#elif M==3
+	MPI_Reduce (&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
 
 #endif
 
   /* Print the result */
   if (my_rank == 0) {
-    free(requests);
     printf("With n = %d trapezoids, our estimate\n", n);
     printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
   }

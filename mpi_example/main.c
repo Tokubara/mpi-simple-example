@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 		all_int[0]=local_int;
     for (int i = 1; i < comm_sz; i++) {
       MPI_Irecv(&all_int[i], 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD,
-               &requests[my_rank-1+comm_sz-1]);
+               &requests[i-1+comm_sz-1]);
     }
 		MPI_Waitall(2*(comm_sz-1), requests, MPI_STATUSES_IGNORE);
 	  for (int i = 0; i < comm_sz; i++) {
